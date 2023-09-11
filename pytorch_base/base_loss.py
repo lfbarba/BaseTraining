@@ -14,5 +14,5 @@ class BaseLoss:
         :param model: the model to the forward pass
         :return: the aggregated loss for back propagation, a dictionary of labeled losses for logging, same names as in self.stats_names
         """
-        loss = 1
-        return loss, {"loss1":1.5, "loss2": 0.4, "accuracy":98.5}
+        pass
+        # return loss, {"loss1":1.5, "loss2": 0.4, "accuracy":98.5}

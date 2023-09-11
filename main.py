@@ -1,16 +1,38 @@
-# This is a sample Python script.
+import torch
+from pytorch_base.experiment import PyTorchExperiment
+from pytorch_base.base_loss import BaseLoss
 
-# Press ⌃R to execute it or replace it with your code.
-# Press Double ⇧ to search everywhere for classes, files, tool windows, actions, and settings.
-
-
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press ⌘F8 to toggle the breakpoint.
-
-
-# Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    print_hi('PyCharm')
+    trainSet = [(x, y) for x, y in zip(torch.randn(1000, 64), torch.randn(1000, 32))]
+    testSet = [(x, y) for x, y in zip(torch.randn(1000, 64), torch.randn(100, 32))]
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+
+    class MyLoss(BaseLoss):
+        def __init__(self):
+            stats_names = ["loss"]
+            super(MyLoss, self).__init__(stats_names)
+
+        def compute_loss(self, instance, model):
+            mse = torch.nn.MSELoss()
+            data, target = instance
+            output = model(data)
+            loss = mse(output, target)
+            return loss, {"loss": loss}
+
+
+    model = torch.nn.Linear(64, 32)
+
+    exp = PyTorchExperiment(
+        train_dataset=trainSet,
+        test_dataset=testSet,
+        batch_size=20,
+        model=model,
+        loss_fn=MyLoss()
+    )
+
+    optimizer = torch.optim.AdamW(
+        model.parameters(),
+        lr=0.001,
+        weight_decay=0.0001)
+
+    exp.train(10, optimizer, milestones=[5, 2], gamma=0.1)

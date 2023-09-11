@@ -3,13 +3,14 @@ import wandb
 
 
 class StatsTracker:
-    def __init__(self, stat_names):
+    def __init__(self, name, stat_names):
         """
         Initialize the StatsTracker with a list of stat names.
 
         Parameters:
         - stat_names: List of names of the stats you want to track.
         """
+        self.name = name
 
         self.stats = {name: {'total': torch.tensor(0.0), 'count': 0, 'min': float('inf'), 'max': float('-inf')}
                       for name in stat_names}
@@ -25,11 +26,11 @@ class StatsTracker:
         - batch_size: The batch size.
         - epoch: Current training epoch.
         """
-        for stat_name, stat_value in stat_value_dict:
+        for stat_name in stat_value_dict:
             if stat_name not in self.stats:
                 raise ValueError(f"Stat name {stat_name} not found!")
 
-            self.stats[stat_name]['total'] += stat_value * batch_size
+            self.stats[stat_name]['total'] += stat_value_dict[stat_name].to('cpu') * batch_size
             self.stats[stat_name]['count'] += batch_size
 
     def get_mean(self, stat_name):
@@ -47,11 +48,10 @@ class StatsTracker:
 
         return self.stats[stat_name]['total'] / self.stats[stat_name]['count']
 
-    def log_stats(self):
+    def log_stats_and_reset(self):
         """
         Log the current mean, total, min, and max values of all the tracked stats for the current epoch.
         Also logs the values to wandb if initialized.
-
         """
         epoch = self.current_epoch
         for stat_name, data in self.stats.items():
@@ -59,15 +59,15 @@ class StatsTracker:
             data['min'] = min(data['min'], mean_stat.item())
             data['max'] = max(data['max'], mean_stat.item())
             print(
-                f"[Epoch {epoch}] {stat_name}: Mean Value: {mean_stat}, Total: {data['total']}, Min: {data['min']}, Max: {data['max']}")
+                f"[{self.name} Epoch {epoch}] ({stat_name}) Mean: {mean_stat:.2f}, Min: {data['min']:.2f}, Max: {data['max']:.2f}")
 
             # Log to wandb if initialized
             if wandb.run:
                 wandb.log({
-                    f"{stat_name}_mean": mean_stat,
-                    f"{stat_name}_total": data['total'],
-                    f"{stat_name}_min": data['min'],
-                    f"{stat_name}_max": data['max']
+                    f"{self.name}_{stat_name}_mean": mean_stat,
+                    f"{self.name}_{stat_name}_total": data['total'],
+                    f"{self.name}_{stat_name}_min": data['min'],
+                    f"{self.name}_{stat_name}_max": data['max']
                 }, step=epoch)
 
         # reset counters for next epoch

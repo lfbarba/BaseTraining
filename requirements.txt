@@ -1,7 +1,9 @@
 torch==2.0.0
-numpy==1.23.5
-lovely-numpy==0.2.8
-lovely-tensors==0.1.14
-matplotlib==3.6.2
-tqdm==4.65.0
+numpy
+lovely-numpy
+lovely-tensors
+matplotlib
+tqdm
 wandb
+einops
+pyarrow
