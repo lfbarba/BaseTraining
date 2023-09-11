@@ -2,11 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="ca9fee24-0202-471b-98a0-7e174b9caba0" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/losses/base_loss.py" beforeDir="false" afterPath="$PROJECT_DIR$/pytorch_base/base_loss.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/experiment.py" beforeDir="false" afterPath="$PROJECT_DIR$/pytorch_base/experiment.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/stats_tracker.py" beforeDir="false" afterPath="$PROJECT_DIR$/pytorch_base/stats_tracker.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pytorch_base/experiment.py" beforeDir="false" afterPath="$PROJECT_DIR$/pytorch_base/experiment.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

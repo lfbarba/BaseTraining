@@ -62,6 +62,6 @@ class PyTorchExperiment:
                     self.best_val_loss = test_tracker.get_mean("loss")
                     torch.save(self.model.state_dict(), f"{self.experiment_name}.pt")
                     if wandb.run:
-                        wandb.save(f"{self.experiment_name}.pt")
+                        wandb.save(f"snapshots/{self.experiment_name}.pt")
 
                 test_tracker.log_stats_and_reset()
