@@ -15,17 +15,21 @@ class PyTorchExperiment:
                  batch_size:int,
                  model:nn.Module,
                  loss_fn:BaseLoss,
-                 experiment_name: str = ""
+                 experiment_name: str = "",
+                 num_workers: int = 0,
+                 with_wandb:bool=False,
+                 seed=0
                  ):
-        self.train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-        self.test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
+        self.train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers)
+        self.test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
         self.model = model
+        self.seed = seed
         self.loss_fn = loss_fn
         self.best_val_loss = float('inf')
-        if experiment_name != "":
-            wandb.init(project=experiment_name)
+        if with_wandb and experiment_name != "":
+            wandb.init(project=experiment_name, name=experiment_name+str(seed))
             wandb.watch(model)
-        else:
+        elif experiment_name == "":
             experiment_name = f"exp_{random.randint(0, 100000)}"
         self.experiment_name = experiment_name
 
@@ -60,8 +64,9 @@ class PyTorchExperiment:
 
                 if test_tracker.get_mean("loss") < self.best_val_loss:
                     self.best_val_loss = test_tracker.get_mean("loss")
-                    torch.save(self.model.state_dict(), f"{self.experiment_name}.pt")
+                    print("saving model at ", f"snapshots/{self.experiment_name}_{self.seed}.pt")
+                    torch.save(self.model.state_dict(), f"snapshots/{self.experiment_name}_{self.seed}.pt")
                     if wandb.run:
-                        wandb.save(f"snapshots/{self.experiment_name}.pt")
+                        wandb.save(f"snapshots/{self.experiment_name}_{self.seed}.pt")
 
                 test_tracker.log_stats_and_reset()
