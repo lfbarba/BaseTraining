@@ -15,6 +15,7 @@ class PyTorchExperiment:
                  batch_size:int,
                  model:nn.Module,
                  loss_fn:BaseLoss,
+                 checkpoints_path="checkpoints",
                  experiment_name: str = "",
                  num_workers: int = 0,
                  with_wandb:bool=False,
@@ -24,7 +25,10 @@ class PyTorchExperiment:
         self.test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
         self.model = model
         self.seed = seed
+        torch.manual_seed(seed)
+        random.seed(seed)
         self.loss_fn = loss_fn
+        self.checkpoints_path = checkpoints_path
         self.best_val_loss = float('inf')
         if with_wandb and experiment_name != "":
             wandb.init(project=experiment_name, name=experiment_name+str(seed))
@@ -64,9 +68,9 @@ class PyTorchExperiment:
 
                 if test_tracker.get_mean("loss") < self.best_val_loss:
                     self.best_val_loss = test_tracker.get_mean("loss")
-                    print("saving model at ", f"snapshots/{self.experiment_name}_{self.seed}.pt")
-                    torch.save(self.model.state_dict(), f"snapshots/{self.experiment_name}_{self.seed}.pt")
+                    print("saving model at ", f"{self.checkpoints_path}/{self.experiment_name}_{self.seed}.pt")
+                    torch.save(self.model.state_dict(), f"{self.checkpoints_path}/{self.experiment_name}_{self.seed}.pt")
                     if wandb.run:
-                        wandb.save(f"snapshots/{self.experiment_name}_{self.seed}.pt")
+                        wandb.save(f"{self.checkpoints_path}/{self.experiment_name}_{self.seed}.pt")
 
                 test_tracker.log_stats_and_reset()
