@@ -12,7 +12,7 @@ class StatsTracker:
         """
         self.name = name
 
-        self.stats = {name: {'total': torch.tensor(0.0), 'count': 0, 'min': float('inf'), 'max': float('-inf')}
+        self.stats = {name: {'total': torch.tensor(0.0), 'count': 0}
                       for name in stat_names}
         self.current_epoch = 0
 
@@ -56,18 +56,13 @@ class StatsTracker:
         epoch = self.current_epoch
         for stat_name, data in self.stats.items():
             mean_stat = self.get_mean(stat_name)
-            data['min'] = min(data['min'], mean_stat.item())
-            data['max'] = max(data['max'], mean_stat.item())
             print(
-                f"[{self.name} Epoch {epoch}] ({stat_name}) Mean: {mean_stat:.2f}, Min: {data['min']:.2f}, Max: {data['max']:.2f}")
+                f"[{self.name} Epoch {epoch}] ({stat_name}) Mean: {mean_stat:.2f}")
 
             # Log to wandb if initialized
             if wandb.run:
                 wandb.log({
                     f"{self.name}_{stat_name}_mean": mean_stat,
-                    f"{self.name}_{stat_name}_total": data['total'],
-                    f"{self.name}_{stat_name}_min": data['min'],
-                    f"{self.name}_{stat_name}_max": data['max']
                 }, step=epoch)
 
         # reset counters for next epoch
