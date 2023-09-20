@@ -31,9 +31,9 @@ if __name__ == '__main__':
         checkpoint_path="checkpoint.pt",
         experiment_name="test_experiment",
         num_workers=0,
-        with_wandb = False,
+        with_wandb=False,
         seed=0,
-        loss_to_track = "loss"
+        loss_to_track="loss"
     )
 
     optimizer = torch.optim.AdamW(
