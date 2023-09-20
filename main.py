@@ -27,7 +27,13 @@ if __name__ == '__main__':
         test_dataset=testSet,
         batch_size=20,
         model=model,
-        loss_fn=MyLoss()
+        loss_fn=MyLoss(),
+        checkpoint_path="checkpoint.pt",
+        experiment_name="test_experiment",
+        num_workers=0,
+        with_wandb = False,
+        seed=0,
+        loss_to_track = "loss"
     )
 
     optimizer = torch.optim.AdamW(

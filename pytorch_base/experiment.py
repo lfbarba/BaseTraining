@@ -8,36 +8,37 @@ from pytorch_base.base_loss import BaseLoss
 from tqdm import tqdm
 import random
 
+
 class PyTorchExperiment:
     def __init__(self,
-                 train_dataset:torch.utils.data.Dataset,
-                 test_dataset:torch.utils.data.Dataset,
-                 batch_size:int,
-                 model:nn.Module,
-                 loss_fn:BaseLoss,
-                 checkpoints_path="checkpoints",
+                 train_dataset: torch.utils.data.Dataset,
+                 test_dataset: torch.utils.data.Dataset,
+                 batch_size: int,
+                 model: nn.Module,
+                 loss_fn: BaseLoss,
+                 checkpoint_path: str,
                  experiment_name: str = "",
                  num_workers: int = 0,
-                 with_wandb:bool=False,
-                 seed=0
+                 with_wandb: bool = False,
+                 seed=0,
+                 loss_to_track: str = "loss"
                  ):
         self.train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers)
         self.test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
         self.model = model
         self.seed = seed
+        self.loss_to_track = loss_to_track
         torch.manual_seed(seed)
         random.seed(seed)
         self.loss_fn = loss_fn
-        self.checkpoints_path = checkpoints_path
+        self.checkpoint_path = checkpoint_path
         self.best_val_loss = float('inf')
         if with_wandb and experiment_name != "":
-            wandb.init(project=experiment_name, name=experiment_name+str(seed))
+            wandb.init(project=experiment_name, name=experiment_name + str(seed))
             wandb.watch(model)
         elif experiment_name == "":
             experiment_name = f"exp_{random.randint(0, 100000)}"
         self.experiment_name = experiment_name
-
-
 
     def train(self, epochs, optimizer, milestones, gamma):
         train_tracker = StatsTracker("Train", self.loss_fn.stats_names)
@@ -66,11 +67,15 @@ class PyTorchExperiment:
                     bs_instance = len(instance[0]) if type(instance) == tuple else len(instance)
                     test_tracker.add(loss_dict, bs_instance)
 
-                if test_tracker.get_mean("loss") < self.best_val_loss:
-                    self.best_val_loss = test_tracker.get_mean("loss")
-                    print("saving model at ", f"{self.checkpoints_path}/{self.experiment_name}_{self.seed}.pt")
-                    torch.save(self.model.state_dict(), f"{self.checkpoints_path}/{self.experiment_name}_{self.seed}.pt")
+                if test_tracker.get_mean(self.loss_to_track) < self.best_val_loss:
+                    self.best_val_loss = test_tracker.get_mean(self.loss_to_track)
+                    print("saving model at ", self.checkpoint_path)
+                    torch.save({
+                        'model_state_dict': self.model.state_dict(),
+                        'optimizer_state_dict': optimizer.state_dict(),
+                    }, self.checkpoint_path)
+
                     if wandb.run:
-                        wandb.save(f"{self.checkpoints_path}/{self.experiment_name}_{self.seed}.pt")
+                        wandb.save(self.checkpoint_path)
 
                 test_tracker.log_stats_and_reset()
