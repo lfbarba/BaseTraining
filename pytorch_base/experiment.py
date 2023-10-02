@@ -48,13 +48,15 @@ class PyTorchExperiment:
 
         for epoch in range(epochs):
             self.model.train()
-            for instance in tqdm(self.train_loader):
+            iterator = tqdm(self.train_loader)
+            for instance in iterator:
                 optimizer.zero_grad()
                 loss, loss_dict = self.loss_fn.compute_loss(instance, self.model)
                 loss.backward()
                 optimizer.step()
                 bs_instance = len(instance[0]) if type(instance) == tuple else len(instance)
                 train_tracker.add(loss_dict, bs_instance)
+                iterator.set_postfix({"loss": f"{loss.item():.2f}"})
 
             train_tracker.log_stats_and_reset()
             scheduler.step()
