@@ -7,6 +7,16 @@ class BaseLoss:
         """
         self.stats_names = stats_names
 
+    def log_epoch_summary(self, instance, model, epoch):
+        """
+        Template for the loss computation
+        :param instance: The batched instance from the dataloader
+        :param model: the model to the forward pass
+        :param epoch: The current epoch of the model
+        :return: the aggregated loss for back propagation, a dictionary of labeled losses for logging, same names as in self.stats_names
+        """
+        pass
+
     def compute_loss(self, instance, model):
         """
         Template for the loss computation

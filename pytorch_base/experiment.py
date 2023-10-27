@@ -11,6 +11,7 @@ import random
 
 class PyTorchExperiment:
     def __init__(self,
+                 args,
                  train_dataset: torch.utils.data.Dataset,
                  test_dataset: torch.utils.data.Dataset,
                  batch_size: int,
@@ -34,7 +35,7 @@ class PyTorchExperiment:
         self.checkpoint_path = checkpoint_path
         self.best_val_loss = float('inf')
         if with_wandb and experiment_name != "":
-            wandb.init(project=experiment_name, name=experiment_name + str(seed))
+            wandb.init(project=experiment_name, name=experiment_name + str(seed), config=args)
             wandb.watch(model)
         elif experiment_name == "":
             experiment_name = f"exp_{random.randint(0, 100000)}"
@@ -68,6 +69,8 @@ class PyTorchExperiment:
                     loss, loss_dict = self.loss_fn.compute_loss(instance, self.model)
                     bs_instance = len(instance[0]) if type(instance) == tuple else len(instance)
                     test_tracker.add(loss_dict, bs_instance)
+
+                self.loss_fn.log_epoch_summary(instance, self.model, epoch)
 
                 if test_tracker.get_mean(self.loss_to_track) < self.best_val_loss:
                     self.best_val_loss = test_tracker.get_mean(self.loss_to_track)
