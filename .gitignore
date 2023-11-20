@@ -7,3 +7,9 @@
 .idea/workspace.xml
 checkpoint.pt
 .idea/BaseTraining.iml
+pytorch_base.egg-info/dependency_links.txt
+pytorch_base.egg-info/PKG-INFO
+pytorch_base.egg-info/SOURCES.txt
+pytorch_base.egg-info/top_level.txt
+*.pyc
+*.pyc

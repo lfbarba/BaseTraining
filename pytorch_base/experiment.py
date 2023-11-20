@@ -41,11 +41,12 @@ class PyTorchExperiment:
             experiment_name = f"exp_{random.randint(0, 100000)}"
         self.experiment_name = experiment_name
 
-    def train(self, epochs, optimizer, milestones, gamma):
+    def train(self, epochs, optimizer, milestones, gamma, scheduler=None):
         train_tracker = StatsTracker("Train", self.loss_fn.stats_names)
         test_tracker = StatsTracker("Test", self.loss_fn.stats_names)
 
-        scheduler = MultiStepLR(optimizer, milestones=milestones, gamma=gamma)
+        if scheduler is None:
+            scheduler = MultiStepLR(optimizer, milestones=[x * len(self.train_loader.dataset) for x in milestones], gamma=gamma)
 
         for epoch in range(epochs):
             self.model.train()
@@ -55,12 +56,14 @@ class PyTorchExperiment:
                 loss, loss_dict = self.loss_fn.compute_loss(instance, self.model)
                 loss.backward()
                 optimizer.step()
+                scheduler.step()
+
                 bs_instance = len(instance[0]) if type(instance) == tuple else len(instance)
                 train_tracker.add(loss_dict, bs_instance)
                 iterator.set_postfix({"loss": f"{loss.item():.2f}"})
 
             train_tracker.log_stats_and_reset()
-            scheduler.step()
+
 
             self.model.eval()
 
@@ -74,7 +77,7 @@ class PyTorchExperiment:
 
                 if test_tracker.get_mean(self.loss_to_track) < self.best_val_loss:
                     self.best_val_loss = test_tracker.get_mean(self.loss_to_track)
-                    print("saving model at ", self.checkpoint_path)
+                    print("saving models at ", self.checkpoint_path)
                     torch.save({
                         'model_state_dict': self.model.state_dict(),
                         'optimizer_state_dict': optimizer.state_dict(),
