@@ -22,13 +22,15 @@ class PyTorchExperiment:
                  num_workers: int = 0,
                  with_wandb: bool = False,
                  seed=0,
-                 loss_to_track: str = "loss"
+                 loss_to_track: str = "loss",
+                 save_always:bool = False
                  ):
         self.train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers)
         self.test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
         self.model = model
         self.seed = seed
         self.loss_to_track = loss_to_track
+        self.save_always = save_always
         torch.manual_seed(seed)
         random.seed(seed)
         self.loss_fn = loss_fn
@@ -75,7 +77,7 @@ class PyTorchExperiment:
 
                 self.loss_fn.log_epoch_summary(instance, self.model, epoch)
 
-                if test_tracker.get_mean(self.loss_to_track) < self.best_val_loss:
+                if self.save_always or test_tracker.get_mean(self.loss_to_track) < self.best_val_loss:
                     self.best_val_loss = test_tracker.get_mean(self.loss_to_track)
                     print("saving models at ", self.checkpoint_path)
                     torch.save({
