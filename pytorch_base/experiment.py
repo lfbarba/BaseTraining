@@ -8,7 +8,6 @@ from pytorch_base.base_loss import BaseLoss
 from tqdm import tqdm
 import random
 
-
 class PyTorchExperiment:
     def __init__(self,
                  args,
@@ -80,12 +79,15 @@ class PyTorchExperiment:
                 if self.save_always or test_tracker.get_mean(self.loss_to_track) < self.best_val_loss:
                     self.best_val_loss = test_tracker.get_mean(self.loss_to_track)
                     print("saving models at ", self.checkpoint_path)
-                    torch.save({
-                        'model_state_dict': self.model.state_dict(),
-                        'optimizer_state_dict': optimizer.state_dict(),
-                    }, self.checkpoint_path)
+                    try:
+                        torch.save({
+                            'model_state_dict': self.model.state_dict(),
+                            'optimizer_state_dict': optimizer.state_dict(),
+                        }, self.checkpoint_path)
+                    except Exception as e:
+                        print("model could not be saved, error:", e)
 
-                    if wandb.run:
-                        wandb.save(self.checkpoint_path)
+                    # if wandb.run:
+                    #     wandb.save(self.checkpoint_path)
 
                 test_tracker.log_stats_and_reset()
