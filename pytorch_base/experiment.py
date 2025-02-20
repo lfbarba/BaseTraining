@@ -93,3 +93,6 @@ class PyTorchExperiment:
                     #     wandb.save(self.checkpoint_path)
 
                 test_tracker.log_stats_and_reset()
+
+        if wandb.run:
+            wandb.finish()
