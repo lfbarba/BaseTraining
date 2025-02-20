@@ -22,7 +22,8 @@ class PyTorchExperiment:
                  with_wandb: bool = False,
                  seed=0,
                  loss_to_track: str = "loss",
-                 save_always:bool = False
+                 save_always:bool = False,
+                 verbose: bool = True,
                  ):
         self.train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers)
         self.test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
@@ -30,6 +31,7 @@ class PyTorchExperiment:
         self.seed = seed
         self.loss_to_track = loss_to_track
         self.save_always = save_always
+        self.verbose = verbose
         torch.manual_seed(seed)
         random.seed(seed)
         self.loss_fn = loss_fn
@@ -51,7 +53,7 @@ class PyTorchExperiment:
 
         for epoch in range(epochs):
             self.model.train()
-            iterator = tqdm(self.train_loader)
+            iterator = tqdm(self.train_loader, desc="Training Loop", leave=False, disable=not self.verbose)
             for instance in iterator:
                 optimizer.zero_grad()
                 loss, loss_dict = self.loss_fn.compute_loss(instance, self.model)
@@ -61,7 +63,7 @@ class PyTorchExperiment:
 
                 bs_instance = len(instance[0]) if type(instance) == tuple else len(instance)
                 train_tracker.add(loss_dict, bs_instance)
-                iterator.set_postfix({"loss": f"{loss.item():.2f}"})
+                iterator.set_postfix({"loss": f"{loss.item():.6f}"})
 
             train_tracker.log_stats_and_reset()
 
@@ -69,7 +71,7 @@ class PyTorchExperiment:
             self.model.eval()
 
             with torch.no_grad():
-                for instance in tqdm(self.test_loader):
+                for instance in tqdm(self.test_loader, desc="Training Loop", leave=False):
                     loss, loss_dict = self.loss_fn.compute_loss(instance, self.model)
                     bs_instance = len(instance[0]) if type(instance) == tuple else len(instance)
                     test_tracker.add(loss_dict, bs_instance)
