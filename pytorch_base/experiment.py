@@ -24,6 +24,7 @@ class PyTorchExperiment:
                  loss_to_track: str = "loss",
                  save_always:bool = False,
                  verbose: bool = True,
+                 is_logging_epoch = lambda x:True
                  ):
         self.train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers)
         self.test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
@@ -36,7 +37,9 @@ class PyTorchExperiment:
         random.seed(seed)
         self.loss_fn = loss_fn
         self.checkpoint_path = checkpoint_path
+        self.with_wandb = with_wandb
         self.best_val_loss = float('inf')
+        self.is_logging_epoch = is_logging_epoch
         if with_wandb and experiment_name != "":
             wandb.init(project=experiment_name, name=experiment_name + str(seed), config=args)
             wandb.watch(model)
@@ -67,32 +70,31 @@ class PyTorchExperiment:
 
             train_tracker.log_stats_and_reset()
 
+            if self.is_logging_epoch(epoch):
+                self.model.eval()
+                with torch.no_grad():
+                    for instance in tqdm(self.test_loader, desc="Training Loop", leave=False):
+                        loss, loss_dict = self.loss_fn.compute_loss(instance, self.model)
+                        bs_instance = len(instance[0]) if type(instance) == tuple else len(instance)
+                        test_tracker.add(loss_dict, bs_instance)
 
-            self.model.eval()
+                    self.loss_fn.log_epoch_summary(instance, self.model, epoch)
 
-            with torch.no_grad():
-                for instance in tqdm(self.test_loader, desc="Training Loop", leave=False):
-                    loss, loss_dict = self.loss_fn.compute_loss(instance, self.model)
-                    bs_instance = len(instance[0]) if type(instance) == tuple else len(instance)
-                    test_tracker.add(loss_dict, bs_instance)
+                    if self.save_always or test_tracker.get_mean(self.loss_to_track) < self.best_val_loss:
+                        self.best_val_loss = test_tracker.get_mean(self.loss_to_track)
+                        print("saving models at ", self.checkpoint_path)
+                        try:
+                            torch.save({
+                                'model_state_dict': self.model.state_dict(),
+                                'optimizer_state_dict': optimizer.state_dict(),
+                            }, self.checkpoint_path)
+                        except Exception as e:
+                            print("model could not be saved, error:", e)
 
-                self.loss_fn.log_epoch_summary(instance, self.model, epoch)
+                        # if wandb.run:
+                        #     wandb.save(self.checkpoint_path)
 
-                if self.save_always or test_tracker.get_mean(self.loss_to_track) < self.best_val_loss:
-                    self.best_val_loss = test_tracker.get_mean(self.loss_to_track)
-                    print("saving models at ", self.checkpoint_path)
-                    try:
-                        torch.save({
-                            'model_state_dict': self.model.state_dict(),
-                            'optimizer_state_dict': optimizer.state_dict(),
-                        }, self.checkpoint_path)
-                    except Exception as e:
-                        print("model could not be saved, error:", e)
+                    test_tracker.log_stats_and_reset()
 
-                    # if wandb.run:
-                    #     wandb.save(self.checkpoint_path)
-
-                test_tracker.log_stats_and_reset()
-
-        if wandb.run:
+        if self.with_wandb:
             wandb.finish()
