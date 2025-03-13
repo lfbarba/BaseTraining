@@ -30,7 +30,11 @@ class StatsTracker:
             if stat_name not in self.stats:
                 raise ValueError(f"Stat name {stat_name} not found!")
 
-            self.stats[stat_name]['total'] += stat_value_dict[stat_name].to('cpu') * batch_size
+            try:
+                stat_value_dict[stat_name] = stat_value_dict[stat_name].item()
+            except:
+                pass
+            self.stats[stat_name]['total'] += stat_value_dict[stat_name] * batch_size
             self.stats[stat_name]['count'] += batch_size
 
     def get_mean(self, stat_name):
