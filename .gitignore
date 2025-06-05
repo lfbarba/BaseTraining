@@ -1,16 +1,105 @@
+# .gitignore
 
+# Bytecode / Compiled Files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / Packaging
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+# For distribution builds
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# IDE / Editor Folders
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS-specific
 .DS_Store
-.idea/vcs.xml
-*.xml
-*.pyc
-*.xml
-.idea/workspace.xml
+Thumbs.db
+
+# PyTorch / Machine Learning Specific
 checkpoint.pt
-.idea/BaseTraining.iml
-pytorch_base.egg-info/dependency_links.txt
-pytorch_base.egg-info/PKG-INFO
-pytorch_base.egg-info/SOURCES.txt
-pytorch_base.egg-info/top_level.txt
-*.pyc
-*.pyc
-pytorch_base/__pycache__/experiment.cpython-310.pyc
+*.pt
+*.pth
+wandb/
+.ipynb_checkpoints/
+
+# Environment files - generally not versioned if they contain secrets or user-specific paths
+# .env
+# .venv/
+# venv/
+# ENV/
+
+# Specific log files or temporary data
+*.log
+temp/
+tmp/
+
+# Jupyter Notebook specific
+# If notebooks contain output, it's often good to ignore them or use a tool to strip output
+# For now, we'll keep .ipynb_checkpoints ignored as above.
+# *.ipynb
+
+# Python Stubs
+*.pyi
+
+# C extensions
+*.so
+
+# Cython generated files
+*.html # For Cython annotation
+*.c
+*.cpp
+
+# Sphinx documentation
+docs/_build/
+docs/build/
+docs/_deploy/
+docs/deploy/
+doc/_build/
+doc/build/
+doc/_deploy/
+doc/deploy/
+_build/
+builddocs/
+
+# MyPy cache
+.mypy_cache/
