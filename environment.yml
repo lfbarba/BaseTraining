@@ -1,0 +1,33 @@
+# Conda environment configuration
+name: pytorch-base-env
+
+channels:
+  - pytorch
+  - nvidia # For users who might want to install CUDA-enabled PyTorch
+  - conda-forge
+  - defaults
+
+dependencies:
+  # Core Python and pip
+  - python=3.8
+  - pip
+
+  # PyTorch (CPU version for broad compatibility, from pytorch channel)
+  - pytorch::pytorch=2.0.0
+  - pytorch::cpuonly # Users can remove/modify this for GPU versions
+
+  # Other core dependencies available on conda-forge or defaults
+  - numpy
+  - matplotlib
+  - tqdm
+  - wandb
+  - einops
+  - pyarrow
+
+  # Dependencies to be installed via pip
+  - pip:
+    - lovely-numpy
+    - lovely-tensors
+    # Any other pip-specific packages or versions would go here
+    # For example, if a specific version from requirements.txt is not on conda:
+    # - package_name==version_from_requirements

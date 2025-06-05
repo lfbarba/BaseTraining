@@ -1,0 +1,54 @@
+# pyproject.toml
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+backend-path = "."
+
+[project]
+name = "pytorch_base"
+version = "0.1.0"
+authors = [
+    { name = "Luis Barba", email = "luis.barba-flores@psi.ch" }
+]
+description = "A base library for PyTorch training experiments."
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+keywords = ["pytorch", "deep learning", "machine learning", "training framework", "experiment management"]
+
+dependencies = [
+    "torch==2.0.0",
+    "numpy",
+    "lovely-numpy",
+    "lovely-tensors",
+    "matplotlib",
+    "tqdm",
+    "wandb",
+    "einops",
+    "pyarrow",
+]
+
+[project.urls]
+Homepage = "https://github.com/example/pytorch-base"
+
+# Optional dependencies (example for a 'dev' group)
+# [project.optional-dependencies]
+# dev = [
+#   "pytest>=7.0",
+#   "flake8",
+#   "mypy",
+# ]
